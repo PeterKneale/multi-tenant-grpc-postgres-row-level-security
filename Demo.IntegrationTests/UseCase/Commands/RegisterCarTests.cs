@@ -1,4 +1,4 @@
-﻿namespace Demo.IntegrationTests.Application.Commands;
+﻿namespace Demo.IntegrationTests.UseCase.Commands;
 
 [Collection(nameof(ContainerCollectionFixture))]
 public class RegisterCarTests

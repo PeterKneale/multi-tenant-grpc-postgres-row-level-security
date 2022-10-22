@@ -1,4 +1,4 @@
-# Demo of a multi-tenant application using Dapper and Postgres with Row level security
+# Demo of a multi-tenant application using Grpc, Dapper and Postgres with Row level security
 
 ## Create a table for use by multiple tenants
 

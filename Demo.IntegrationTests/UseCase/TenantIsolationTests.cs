@@ -1,4 +1,4 @@
-﻿namespace Demo.IntegrationTests.Application;
+﻿namespace Demo.IntegrationTests.UseCase;
 
 [Collection(nameof(ContainerCollectionFixture))]
 public class TenantIsolationTests

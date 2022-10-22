@@ -1,4 +1,4 @@
-﻿namespace Demo.IntegrationTests.Application.Queries;
+﻿namespace Demo.IntegrationTests.UseCase.Queries;
 
 [Collection(nameof(ContainerCollectionFixture))]
 public class GetCarTests

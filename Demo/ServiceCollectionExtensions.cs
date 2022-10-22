@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Demo;
+﻿namespace Demo;
 
 public static class ServiceCollectionExtensions
 {
@@ -11,14 +9,20 @@ public static class ServiceCollectionExtensions
 
         var assembly = Assembly.GetExecutingAssembly();
 
+        // api
+        services.AddGrpc();
+        
+        // libraries
         services.AddMediatR(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
+        // infra
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<IRepository, Repository>();
         services.AddScoped<ICarRepository, CarRepository>();
         services.AddScoped<IDbConnection>(c => new NpgsqlConnection(tenantConnectionString));
 
+        // database migrations
         services
             .AddFluentMigratorCore()
             .ConfigureRunner(runner => runner

@@ -4,7 +4,6 @@
 
 namespace Demo;
 
-public class AssemblyInfo
+public class ApiAssembly
 {
-
 }
