@@ -1,30 +1,35 @@
-﻿using Demo.Infrastructure.Repositories;
+﻿using Demo.Infrastructure.Tenancy;
 
 namespace Demo.IntegrationTests.Fixtures;
 
 public static class ProviderExtensions
 {
-    public static async Task ExecuteCommand(this IServiceProvider provider, IRequest command, string tenant="DEMO")
+    public static async Task ExecuteCommand(this IServiceProvider provider, IRequest command, string tenant = "DEMO")
     {
         using var scope = provider.CreateScope();
-        SetContext(tenant, scope);
+        
+        SetTenantContext(tenant, scope);
+
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         await mediator.Send(command);
     }
 
-    public static async Task<T> ExecuteQuery<T>(this IServiceProvider provider, IRequest<T> query, string tenant="DEMO")
+
+    public static async Task<T> ExecuteQuery<T>(this IServiceProvider provider, IRequest<T> query, string tenant = "DEMO")
     {
+        
         using var scope = provider.CreateScope();
-        SetContext(tenant, scope);
+        
+        SetTenantContext(tenant, scope);
+
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         return await mediator.Send(query);
     }
-    private static void SetContext(string tenant, IServiceScope scope)
+        
+    private static void SetTenantContext(string tenant, IServiceScope scope)
     {
-        if (scope.ServiceProvider.GetRequiredService<ITenantContext>() is not TestTenantContext context)
-        {
-            throw new Exception("Cannot find context");
-        }
-        context.SetTestContext(tenant);
+        // resolve the tenant context so that it can be set for this use case
+        var setter = scope.ServiceProvider.GetRequiredService<ISetTenantContext>();
+        setter.SetCurrentTenant(tenant);
     }
 }

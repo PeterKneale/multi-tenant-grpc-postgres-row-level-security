@@ -1,4 +1,6 @@
-﻿namespace Demo.Application.Commands;
+﻿using Demo.Application.Exceptions;
+
+namespace Demo.Application.Commands;
 
 public static class AddCar
 {
@@ -32,6 +34,12 @@ public static class AddCar
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var carId = CarId.CreateInstance(request.Id);
+
+            var exists = await _cars.Get(carId, cancellationToken);
+            if (exists != null)
+            {
+                throw new CarAlreadyExistsException(request.Id);
+            }
 
             var car = Car.CreateInstance(carId);
 

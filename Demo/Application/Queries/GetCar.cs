@@ -1,4 +1,6 @@
-﻿namespace Demo.Application.Queries;
+﻿using Demo.Application.Exceptions;
+
+namespace Demo.Application.Queries;
 
 public static class GetCar
 {
@@ -38,7 +40,7 @@ public static class GetCar
             var car = await _cars.Get(carId, cancellationToken);
             if (car == null)
             {
-                throw new Exception("Car not found");
+                throw new CarNotFoundException(request.Id);
             }
 
             return new Result(car.Id.Id, car.Registration?.RegistrationNumber);

@@ -1,22 +1,24 @@
-﻿using Demo.Infrastructure.Repositories.Serialisation;
+﻿using Dapper;
+using Demo.Infrastructure.Repositories.Serialisation;
+using Demo.Infrastructure.Tenancy;
 
 namespace Demo.Infrastructure.Repositories;
 
 internal class CarRepository : ICarRepository
 {
-    private readonly IRepository _db;
-    private readonly ITenantContext _context;
+    private readonly IDbConnection _connection;
+    private readonly IGetTenantContext _context;
 
-    public CarRepository(IRepository db, ITenantContext context)
+    public CarRepository(IDbConnection connection, IGetTenantContext context)
     {
-        _db = db;
+        _connection = connection;
         _context = context;
     }
 
     public async Task<Car?> Get(CarId carId, CancellationToken cancellationToken)
     {
         const string sql = "select data from cars where id = @id";
-        var result = await _db.QuerySingleOrDefaultAsync(sql, new
+        var result = await _connection.QuerySingleOrDefaultAsync<string>(sql, new
         {
             id = carId.Id
         });
@@ -26,7 +28,7 @@ internal class CarRepository : ICarRepository
     public async Task<Car?> GetByRegistration(Registration registration, CancellationToken token)
     {
         const string sql = "select data from cars where registration = @registration";
-        var result = await _db.QuerySingleOrDefaultAsync(sql, new
+        var result = await _connection.QuerySingleOrDefaultAsync<string>(sql, new
         {
             registration = registration.RegistrationNumber
         });
@@ -36,7 +38,7 @@ internal class CarRepository : ICarRepository
     public async Task<IEnumerable<Car>> List(CancellationToken cancellationToken)
     {
         const string sql = "select data from cars";
-        var results = await _db.QueryAsync(sql, cancellationToken);
+        var results = await _connection.QueryAsync<string>(sql, cancellationToken);
         return results
             .Select(result => JsonHelper.ToObject<Car>(result)!)
             .ToList();
@@ -46,7 +48,7 @@ internal class CarRepository : ICarRepository
     {
         const string sql = "insert into cars (id, tenant, registration, data) values (@id, @tenant, @registration, @data::jsonb)";
         var json = JsonHelper.ToJson(car);
-        await _db.ExecuteAsync(sql, new
+        await _connection.ExecuteAsync(sql, new
         {
             id = car.Id.Id,
             tenant = _context.CurrentTenant,
@@ -58,7 +60,7 @@ internal class CarRepository : ICarRepository
     public async Task Update(Car car, CancellationToken cancellationToken)
     {
         const string sql = "update cars set registration = @registration, data = @data::jsonb where id = @id";
-        var result = await _db.ExecuteAsync(sql, new
+        var result = await _connection.ExecuteAsync(sql, new
         {
             id = car.Id.Id,
             registration = car.Registration?.RegistrationNumber,

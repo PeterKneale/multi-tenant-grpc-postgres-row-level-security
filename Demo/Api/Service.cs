@@ -33,7 +33,7 @@ public class Service : DemoService.DemoServiceBase
             Registration = result.Registration ?? string.Empty
         };
     }
-    
+
     public override async Task<GetCarByRegistrationResponse> GetCarByRegistration(GetCarByRegistrationRequest request, ServerCallContext context)
     {
         var result = await _mediator.Send(new GetCarByRegistration.Query(request.Registration));
@@ -42,5 +42,26 @@ public class Service : DemoService.DemoServiceBase
             Id = result.Id.ToString(),
             Registration = result.Registration
         };
+    }
+
+    public class GetCarValidator : AbstractValidator<GetCarRequest>
+    {
+        public GetCarValidator()
+        {
+            RuleFor(x => x.Id).NotNull()
+                .NotEmpty()
+                .Must(x => Guid.TryParse(x, out _))
+                .WithMessage("'Id' must be a valid GUID");
+        }
+    }
+
+    public class GetCarByRegistrationValidator : AbstractValidator<GetCarByRegistrationRequest>
+    {
+        public GetCarByRegistrationValidator()
+        {
+            RuleFor(x => x.Registration)
+                .NotNull()
+                .NotEmpty();
+        }
     }
 }

@@ -3,7 +3,6 @@ using MartinCostello.Logging.XUnit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace Demo.FunctionalTests.Fixtures;
 

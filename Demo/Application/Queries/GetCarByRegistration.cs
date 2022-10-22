@@ -1,4 +1,6 @@
-﻿namespace Demo.Application.Queries;
+﻿using Demo.Application.Exceptions;
+
+namespace Demo.Application.Queries;
 
 public static class GetCarByRegistration
 {
@@ -14,7 +16,7 @@ public static class GetCarByRegistration
 
     public record Result(Guid Id, string Registration);
 
-    internal class Validator : AbstractValidator<Query>
+    public class Validator : AbstractValidator<Query>
     {
         public Validator()
         {
@@ -38,7 +40,7 @@ public static class GetCarByRegistration
             var car = await _cars.GetByRegistration(registration, cancellationToken);
             if (car == null)
             {
-                throw new Exception("Car not found");
+                throw new CarNotFoundException(request.RegistrationNumber);
             }
 
             return new Result(car.Id.Id, car.Registration!.RegistrationNumber);

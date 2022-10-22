@@ -1,6 +1,4 @@
-﻿using Demo.Infrastructure.Repositories;
-
-namespace Demo.IntegrationTests.Fixtures;
+﻿namespace Demo.IntegrationTests.Fixtures;
 
 public class ContainerFixture : IDisposable
 {
@@ -19,7 +17,6 @@ public class ContainerFixture : IDisposable
             .Build();
         var services = new ServiceCollection();
         services.AddDemo(configuration);
-        services.AddScoped<ITenantContext, TestTenantContext>();
         _provider = services.BuildServiceProvider();
 
         using var scope = _provider.CreateScope();

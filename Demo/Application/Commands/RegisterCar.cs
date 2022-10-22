@@ -1,4 +1,6 @@
-﻿namespace Demo.Application.Commands;
+﻿using Demo.Application.Exceptions;
+
+namespace Demo.Application.Commands;
 
 public static class RegisterCar
 {
@@ -37,10 +39,24 @@ public static class RegisterCar
             var carId = CarId.CreateInstance(request.Id);
             var registration = Registration.CreateInstance(request.Registration);
 
+            var exists = await _cars.GetByRegistration(registration, cancellationToken);
+            if (exists != null)
+            {
+                if (exists.Id.Id.Equals(carId.Id))
+                {
+                    throw new CarAlreadyRegisteredException(request.Registration);
+                }
+                throw new RegistrationAlreadyExistsException(request.Registration);
+            }
+
             var car = await _cars.Get(carId, cancellationToken);
             if (car == null)
             {
-                throw new Exception("Car not found");
+                throw new CarNotFoundException(request.Registration);
+            }
+            if (car.Registration != null)
+            {
+                throw new CarAlreadyRegisteredException(request.Registration);
             }
 
             car.Register(registration);
