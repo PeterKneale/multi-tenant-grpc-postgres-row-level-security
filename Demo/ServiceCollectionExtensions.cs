@@ -1,4 +1,6 @@
-﻿namespace Demo;
+﻿using Demo.Infrastructure.Behaviours;
+
+namespace Demo;
 
 public static class ServiceCollectionExtensions
 {
@@ -22,6 +24,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICarRepository, CarRepository>();
         services.AddScoped<IDbConnection>(c => new NpgsqlConnection(tenantConnectionString));
 
+        // behaviours
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+        
         // database migrations
         services
             .AddFluentMigratorCore()
