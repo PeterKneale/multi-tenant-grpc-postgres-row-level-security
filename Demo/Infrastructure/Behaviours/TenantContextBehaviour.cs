@@ -1,17 +1,18 @@
 ﻿using Dapper;
+using Demo.Application.Contracts;
 using Demo.Infrastructure.Tenancy;
 
 namespace Demo.Infrastructure.Behaviours;
 
-internal class TenantContextBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+internal class TenantContextBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, IRequireTenantContext
 {
     private readonly IDbConnection _connection;
     private readonly IGetTenantContext _context;
     private readonly ILogger<TenantContextBehaviour<TRequest, TResponse>> _log;
     
-    public TenantContextBehaviour(IDbConnection connection, IGetTenantContext context, ILogger<TenantContextBehaviour<TRequest, TResponse>> log)
+    public TenantContextBehaviour(IConnectionFactory factory, IGetTenantContext context, ILogger<TenantContextBehaviour<TRequest, TResponse>> log)
     {
-        _connection = connection;
+        _connection = factory.GetConnection();
         _context = context;
         _log = log;
     }

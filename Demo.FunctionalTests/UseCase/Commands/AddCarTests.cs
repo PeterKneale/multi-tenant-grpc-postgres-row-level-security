@@ -3,12 +3,12 @@
 [Collection(nameof(ServiceCollectionFixture))]
 public class AddCarTests
 {
-    private readonly DemoService.DemoServiceClient _client;
+    private readonly TenantService.TenantServiceClient _client;
 
     public AddCarTests(ServiceFixture service, ITestOutputHelper output)
     {
         service.OutputHelper = output;
-        _client = service.GrpcClient;
+        _client = service.TenantClient;
     }
 
     [Fact]

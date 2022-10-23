@@ -1,5 +1,4 @@
-﻿using Demo.Application.Exceptions;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
 
 namespace Demo.Infrastructure.Interceptors;

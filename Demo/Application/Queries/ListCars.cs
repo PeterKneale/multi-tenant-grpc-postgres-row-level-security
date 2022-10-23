@@ -1,8 +1,10 @@
-﻿namespace Demo.Application.Queries;
+﻿using Demo.Application.Contracts;
+
+namespace Demo.Application.Queries;
 
 public static class ListCars
 {
-    public record Query : IRequest<IEnumerable<Result>>;
+    public record Query : IRequest<IEnumerable<Result>>, IRequireTenantContext;
 
     public record Result(Guid Id, string? Registration);
 

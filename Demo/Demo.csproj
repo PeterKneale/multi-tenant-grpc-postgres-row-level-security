@@ -25,7 +25,8 @@
 
 
     <ItemGroup>
-        <Protobuf Include="Api/api.proto" GrpcServices="Server" />
+        <Protobuf Include="Api\TenantApi.proto" GrpcServices="Server" />
+        <Protobuf Include="Api\AdminApi.proto" GrpcServices="Server" />
     </ItemGroup>
-    
+
 </Project>

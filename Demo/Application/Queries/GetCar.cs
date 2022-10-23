@@ -1,10 +1,10 @@
-﻿using Demo.Application.Exceptions;
+﻿using Demo.Application.Contracts;
 
 namespace Demo.Application.Queries;
 
 public static class GetCar
 {
-    public class Query : IRequest<Result>
+    public class Query : IRequest<Result>, IRequireTenantContext
     {
         public Query(Guid id)
         {

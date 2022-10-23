@@ -1,10 +1,10 @@
-﻿using Demo.Application.Exceptions;
+﻿using Demo.Application.Contracts;
 
 namespace Demo.Application.Commands;
 
 public static class AddCar
 {
-    public class Command : IRequest
+    public class Command : IRequest, IRequireTenantContext
     {
         public Command(Guid id)
         {

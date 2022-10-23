@@ -5,12 +5,12 @@ namespace Demo.FunctionalTests.UseCase.Queries;
 [Collection(nameof(ServiceCollectionFixture))]
 public class GetCarTests
 {
-    private readonly DemoService.DemoServiceClient _client;
+    private readonly TenantService.TenantServiceClient _client;
 
     public GetCarTests(ServiceFixture service, ITestOutputHelper output)
     {
         service.OutputHelper = output;
-        _client = service.GrpcClient;
+        _client = service.TenantClient;
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class GetCarTests
             .And
             .Status.StatusCode.Should().Be(StatusCode.NotFound);
     }
-    
+
 
     [Fact]
     public void BadRequest()

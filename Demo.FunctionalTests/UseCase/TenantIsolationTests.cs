@@ -5,12 +5,12 @@ namespace Demo.FunctionalTests.UseCase;
 [Collection(nameof(ServiceCollectionFixture))]
 public class TenantIsolationTests
 {
-    private readonly DemoService.DemoServiceClient _client;
+    private readonly TenantService.TenantServiceClient _client;
 
     public TenantIsolationTests(ServiceFixture service, ITestOutputHelper output)
     {
         service.OutputHelper = output;
-        _client = service.GrpcClient;
+        _client = service.TenantClient;
     }
 
     [Fact]

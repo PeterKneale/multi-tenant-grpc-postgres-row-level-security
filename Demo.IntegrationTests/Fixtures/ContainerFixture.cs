@@ -7,12 +7,13 @@ public class ContainerFixture : IDisposable
     public ContainerFixture()
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional:false)
+            .AddJsonFile("appsettings.json", optional: false)
             .Build();
         var services = new ServiceCollection();
         services.AddDemo(configuration);
+        services.AddSingleton<IConfiguration>(configuration);
         _provider = services.BuildServiceProvider();
-        _provider.ExecuteDatabaseMigration(x=>x.ResetDatabase());
+        _provider.ExecuteDatabaseMigration(x => x.ResetDatabase());
     }
 
     public IServiceProvider Provider => _provider;

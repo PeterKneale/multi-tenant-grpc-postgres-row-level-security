@@ -1,13 +1,15 @@
-﻿namespace Demo.Infrastructure.Behaviours;
+﻿using Demo.Application.Contracts;
 
-internal class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+namespace Demo.Infrastructure.Behaviours;
+
+internal class TenantTransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, IRequireTenantContext
 {
     private readonly IDbConnection _connection;
-    private readonly ILogger<TransactionBehaviour<TRequest, TResponse>> _log;
+    private readonly ILogger<TenantTransactionBehaviour<TRequest, TResponse>> _log;
 
-    public TransactionBehaviour(IDbConnection connection, ILogger<TransactionBehaviour<TRequest, TResponse>> log)
+    public TenantTransactionBehaviour(IConnectionFactory factory, ILogger<TenantTransactionBehaviour<TRequest, TResponse>> log)
     {
-        _connection = connection;
+        _connection = factory.GetConnection();
         _log = log;
     }
 
@@ -36,6 +38,7 @@ internal class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         finally
         {
             _log.LogError("Closing connection");
+            transaction.Dispose();
             _connection.Close();
         }
         return result;

@@ -1,59 +1,89 @@
-# Demo of a multi-tenant application using Grpc, Dapper and Postgres with Row level security
+# Demo of a multi-tenant application using Grpc, Dapper and Postgres with Row level security 
+- Featuring both tenant and admin access
+
+## Apis
+
+### Admin Api
+
+Executes use cases in the context of an administrator on the platform
+
+### Tenant Api
+
+Executes use cases in the context of a specific tenant on the platform
 
 ## GRPC Request Pipeline
 
 ### ExceptionInterceptor
-Trap for exceptions and translate them to GRPC response status codes
 
-### ValidationInterceptor 
+Trap for exceptions and translate them to GRPC response status codes
+Applied to both the Admin and Tenant APIs
+
+### ValidationInterceptor
+
 Finds a validator for the GRPC request and uses it to validate the request or throw a validation exception
+Applied to both the Admin and Tenant APIs
 
 ### TenantContextInterceptor
+
 Extracts the tenant identifier from the GRPC request and stores it in the tenant context.
+Only applied to the Tenant API
 
 ## Mediatr Request Pipeline
 
-### LoggingBehaviour 
+### LoggingBehaviour
+
 Log the request being executed
+Applies to all requests
 
-### TransactionBehaviour 
+### TenantTransactionBehaviour
+
 Open a database connection and begin a transaction
+Only applies when a request is annotated with the `IRequireTenantContext` marker interface
 
-### TenantContextBehaviour 
+### TenantContextBehaviour
+
 Retrieves the tenant identity from the tenant context then uses the open connection to set tenant context in db
+Only applies when a request is annotated with the `IRequireTenantContext` marker interface
 
-## Create a table for use by multiple tenants
-
+## Database schema
+Create a table for use by multiple tenants
 ```cs
 Create.Table("cars")
-            .WithColumn("id").AsGuid().NotNullable().PrimaryKey()
-            .WithColumn("tenant").AsString().NotNullable() // This column indicates which tenant a row belongs to
-            .WithColumn("registration").AsString().Nullable().Unique()
-            .WithColumn("data").AsCustom("jsonb").NotNullable();
+    .WithColumn("id").AsGuid().NotNullable().PrimaryKey()
+    .WithColumn("tenant").AsString().NotNullable() // This column indicates which tenant a row belongs to
+    .WithColumn("registration").AsString().Nullable().Unique()
+    .WithColumn("data").AsCustom("jsonb").NotNullable();
 ```   
 
-## Configuring security policy on the table
+## Row Level Security Policies
 
-```sql
+### Admin Security Policy
+
+All rows can be accessed
+
+```csharp
+// Create a separate account for administrators to login with
+Execute.Sql($"CREATE USER {Username} LOGIN PASSWORD '{Password}';");
+
+// Give this administrators account access to the table 
+Execute.Sql($"GRANT {Permissions} ON {Table} TO {Username};");
+
+// Define the policy that will be applied
+Execute.Sql($"CREATE POLICY {Policy} ON {Table} FOR ALL TO {Username} USING (true);");
+```
+
+### Tenant Security Policy
+
+Only those rows where the `tenant identifier` stored in the `app.tenant` context matches the `tenant` column can be
+accessed
+
+```csharp
 // Create a separate account for tenants to login with
 Execute.Sql($"CREATE USER {Username} LOGIN PASSWORD '{Password}';");
 
 // Give this tenant account access to the table 
-Execute.Sql($"GRANT SELECT, UPDATE, INSERT, DELETE ON {Table} TO {Username};");
-
-// This table should have row level security that ensure a tenant can only manage their own data
-Execute.Sql($"ALTER TABLE {Table} ENABLE ROW LEVEL SECURITY;");
+Execute.Sql($"GRANT {Permissions} ON {Table} TO {Username};");
 
 // Define the policy that will be applied
-Execute.Sql($"CREATE POLICY {Policy} ON {Table} FOR ALL TO {Username} USING (tenant = current_setting('app.tenant')::VARCHAR);");
-```
-
-## Interacting with security policy
-
-```sql
-// The the tenant context for this connection
-SET app.tenant = '{Tenant}'
-
-// Only this rows belonging to this tenant will be returned
-SELECT * FROM {Table}
+Execute.Sql($"CREATE POLICY {Policy} ON {Table} FOR ALL TO {Username} USING ({Column} = current_setting('app.tenant')::VARCHAR);");
 ```

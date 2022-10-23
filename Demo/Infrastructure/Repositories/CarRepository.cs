@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Demo.Application.Contracts;
 using Demo.Infrastructure.Repositories.Serialisation;
 using Demo.Infrastructure.Tenancy;
 
@@ -9,9 +10,9 @@ internal class CarRepository : ICarRepository
     private readonly IDbConnection _connection;
     private readonly IGetTenantContext _context;
 
-    public CarRepository(IDbConnection connection, IGetTenantContext context)
+    public CarRepository(IConnectionFactory factory, IGetTenantContext context)
     {
-        _connection = connection;
+        _connection = factory.GetConnection();
         _context = context;
     }
 

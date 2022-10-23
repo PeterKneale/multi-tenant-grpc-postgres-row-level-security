@@ -4,7 +4,7 @@ package Demo;
 
 option csharp_namespace = "Demo.Api";
 
-service DemoService {
+service TenantService {
     rpc AddCar(AddCarRequest) returns (EmptyResponse);
     rpc GetCar(GetCarRequest) returns (GetCarResponse);
     rpc RegisterCar(RegisterCarRequest) returns (EmptyResponse);

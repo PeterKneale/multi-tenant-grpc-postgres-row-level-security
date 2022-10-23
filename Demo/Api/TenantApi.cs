@@ -4,11 +4,11 @@ using Grpc.Core;
 
 namespace Demo.Api;
 
-public class Service : DemoService.DemoServiceBase
+public class TenantApi : TenantService.TenantServiceBase
 {
     private readonly IMediator _mediator;
 
-    public Service(IMediator mediator)
+    public TenantApi(IMediator mediator)
     {
         _mediator = mediator;
     }

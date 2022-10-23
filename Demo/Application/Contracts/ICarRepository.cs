@@ -1,4 +1,4 @@
-﻿namespace Demo.Domain.CarAggregate;
+﻿namespace Demo.Application.Contracts;
 
 public interface ICarRepository
 {

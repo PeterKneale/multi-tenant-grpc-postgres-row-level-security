@@ -18,7 +18,8 @@ public class ServiceFixture : WebApplicationFactory<ApiAssembly>, ITestOutputHel
         {
             HttpClient = httpClient
         });
-        GrpcClient = new DemoService.DemoServiceClient(_channel);
+        TenantClient = new TenantService.TenantServiceClient(_channel);
+        AdminClient = new AdminService.AdminServiceClient(_channel);
         Services.ExecuteDatabaseMigration(x => x.ResetDatabase());
     }
 
@@ -27,7 +28,8 @@ public class ServiceFixture : WebApplicationFactory<ApiAssembly>, ITestOutputHel
 
     public ITestOutputHelper? OutputHelper { get; set; }
 
-    public DemoService.DemoServiceClient GrpcClient { get; }
+    public TenantService.TenantServiceClient TenantClient { get; }
+    public AdminService.AdminServiceClient AdminClient { get; }
 
     protected override void Dispose(bool disposing)
     {

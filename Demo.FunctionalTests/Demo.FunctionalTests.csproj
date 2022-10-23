@@ -31,7 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="../Demo/Api/api.proto" GrpcServices="Client" />
+    <Protobuf Include="../Demo/Api/AdminApi.proto" GrpcServices="Client" />
+    <Protobuf Include="../Demo/Api/TenantApi.proto" GrpcServices="Client" />
   </ItemGroup>
 
   <ItemGroup>

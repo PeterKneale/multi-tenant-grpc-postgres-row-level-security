@@ -2,25 +2,26 @@ using FluentMigrator;
 
 namespace Demo.Infrastructure.Database;
 
-[Migration(2,"Create an admin security policy allowing readonly access to all tenant data")]
-public class Migration2 : Migration
+[Migration(3,"Create a tenant security policy allowing access only their own tenant data")]
+public class Migration3 : Migration
 {
-    const string Username = "admin";
+    const string Username = "tenant";
     const string Password = "password";
     const string Table = "cars";
-    const string Policy = "admin_security_policy";
-    const string Permissions = "SELECT";
+    const string Column= "tenant";
+    const string Policy = "tenant_security_policy";
+    const string Permissions = "SELECT, UPDATE, INSERT, DELETE";
 
     public override void Up()
     {
-        // Create a separate account for administrators to login with
+        // Create a separate account for tenants to login with
         Execute.Sql($"CREATE USER {Username} LOGIN PASSWORD '{Password}';");
         
-        // Give this administrators account access to the table 
+        // Give this tenant account access to the table 
         Execute.Sql($"GRANT {Permissions} ON {Table} TO {Username};");
         
         // Define the policy that will be applied
-        Execute.Sql($"CREATE POLICY {Policy} ON {Table} FOR ALL TO {Username} USING (true);");
+        Execute.Sql($"CREATE POLICY {Policy} ON {Table} FOR ALL TO {Username} USING ({Column} = current_setting('app.tenant')::VARCHAR);");
     }
 
     public override void Down()
