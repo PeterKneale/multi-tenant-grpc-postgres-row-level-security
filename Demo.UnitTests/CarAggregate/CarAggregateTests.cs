@@ -11,7 +11,7 @@ public class CarAggregateTests
     }
 
     [Fact]
-    public void CarCanBeRegisteredIfOwned()
+    public void CarCanBeRegistered()
     {
         // arrange
         var carId = CarId.CreateInstance();

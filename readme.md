@@ -1,5 +1,27 @@
 # Demo of a multi-tenant application using Grpc, Dapper and Postgres with Row level security
 
+## GRPC Request Pipeline
+
+### ExceptionInterceptor
+Trap for exceptions and translate them to GRPC response status codes
+
+### ValidationInterceptor 
+Finds a validator for the GRPC request and uses it to validate the request or throw a validation exception
+
+### TenantContextInterceptor
+Extracts the tenant identifier from the GRPC request and stores it in the tenant context.
+
+## Mediatr Request Pipeline
+
+### LoggingBehaviour 
+Log the request being executed
+
+### TransactionBehaviour 
+Open a database connection and begin a transaction
+
+### TenantContextBehaviour 
+Retrieves the tenant identity from the tenant context then uses the open connection to set tenant context in db
+
 ## Create a table for use by multiple tenants
 
 ```cs

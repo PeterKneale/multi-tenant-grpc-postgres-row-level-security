@@ -12,9 +12,12 @@ public static class ServiceCollectionExtensions
         var tenantConnectionString = configuration["TenantConnectionString"];
         var adminConnectionString = configuration["AdminConnectionString"];
 
+        // libraries
         var assembly = Assembly.GetExecutingAssembly();
+        services.AddMediatR(assembly);
+        services.AddValidatorsFromAssembly(assembly);
 
-        // api
+        // Setup grpc request pipeline
         services.AddGrpc()
             .AddServiceOptions<Service>(options =>
             {
@@ -23,14 +26,18 @@ public static class ServiceCollectionExtensions
                 options.Interceptors.Add<TenantContextInterceptor>(); // ge the tenant context
             });
         
-        // libraries
-        services.AddMediatR(assembly);
-        services.AddValidatorsFromAssembly(assembly);
-
-        // infra
-        services.AddScoped<ICarRepository, CarRepository>();
-        services.AddScoped<IDbConnection>(c => new NpgsqlConnection(tenantConnectionString));
+        // Setup mediatr request pipeline
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>)); // start logging
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehaviour<,>)); // begin a transaction
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantContextBehaviour<,>)); // set tenant context in db
         
+        // infra
+        // Note that there is a single connection per request as this is a scoped dependency
+        // This is important as this way the tenant context set by the TenantContextBehaviour
+        // is the same one used by the repository
+        services.AddScoped<IDbConnection>(c => new NpgsqlConnection(tenantConnectionString));
+        services.AddScoped<ICarRepository, CarRepository>();
+
         // Tenant context
         // a single instance of tenant context is created per request
         // requests for ISet and IGet are both forwarded to the same instance 
@@ -38,11 +45,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetTenantContext>(c=>c.GetRequiredService<TenantContext>());
         services.AddScoped<ISetTenantContext>(c=>c.GetRequiredService<TenantContext>());
 
-        // behaviours
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>)); // start logging
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehaviour<,>)); // begin a transaction
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantContextBehaviour<,>)); // set tenant context in db
-        
         // database migrations
         services
             .AddFluentMigratorCore()

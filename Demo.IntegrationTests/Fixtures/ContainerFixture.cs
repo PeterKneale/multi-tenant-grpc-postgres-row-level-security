@@ -7,21 +7,12 @@ public class ContainerFixture : IDisposable
     public ContainerFixture()
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                // Used by the tenants when using the app
-                {"TenantConnectionString", "Host=localhost;Database=postgres;Username=tenant;Password=password"},
-                // Used by the app when provisioning
-                {"AdminConnectionString", "Host=localhost;Database=postgres;Username=postgres;Password=password"}
-            })
+            .AddJsonFile("appsettings.json", optional:false)
             .Build();
         var services = new ServiceCollection();
         services.AddDemo(configuration);
         _provider = services.BuildServiceProvider();
-
-        using var scope = _provider.CreateScope();
-        var migrator = scope.ServiceProvider.GetRequiredService<MigrationExecutor>();
-        migrator.ResetDatabase();
+        _provider.ExecuteDatabaseMigration(x=>x.ResetDatabase());
     }
 
     public IServiceProvider Provider => _provider;

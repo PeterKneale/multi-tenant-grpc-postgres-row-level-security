@@ -15,10 +15,11 @@ public class AddCarTests
     {
         // arrange
         var id = Guid.NewGuid();
+        var tenant = "A";
 
         // act
-        await _provider.ExecuteCommand(new AddCar.Command(id));
-        var result = await _provider.ExecuteQuery(new GetCar.Query(id));
+        await _provider.ExecuteCommand(new AddCar.Command(id), tenant);
+        var result = await _provider.ExecuteQuery(new GetCar.Query(id), tenant);
 
         // assert
         result.Id.Should().Be(id);

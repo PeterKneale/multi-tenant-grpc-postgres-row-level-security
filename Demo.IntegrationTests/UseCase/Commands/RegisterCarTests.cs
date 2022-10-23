@@ -16,11 +16,12 @@ public class RegisterCarTests
         // arrange
         var id = Guid.NewGuid();
         var registration = Guid.NewGuid().ToString()[..6];
+        var tenant = "A";
 
         // act
-        await _provider.ExecuteCommand(new AddCar.Command(id));
-        await _provider.ExecuteCommand(new RegisterCar.Command(id, registration));
-        var result = await _provider.ExecuteQuery(new GetCarByRegistration.Query(registration));
+        await _provider.ExecuteCommand(new AddCar.Command(id), tenant);
+        await _provider.ExecuteCommand(new RegisterCar.Command(id, registration), tenant);
+        var result = await _provider.ExecuteQuery(new GetCarByRegistration.Query(registration), tenant);
 
         // assert
         result.Id.Should().Be(id);
