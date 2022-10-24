@@ -11,43 +11,51 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDemo(this IServiceCollection services, IConfiguration configuration)
     {
-        // libraries
+        // Register libraries
         var assembly = Assembly.GetExecutingAssembly();
-        services.AddMediatR(assembly);
-        services.AddValidatorsFromAssembly(assembly);
+        services
+            .AddMediatR(assembly)
+            .AddValidatorsFromAssembly(assembly);
 
-        // Setup grpc request pipeline
+        // Register grpc request pipeline
         services
             // Add common interceptors for both the admin and tenant api's
             .AddGrpc(options => {
-                options.Interceptors.Add<ExceptionInterceptor>();// Start trapping for exceptions
-                options.Interceptors.Add<ValidationInterceptor>();// validate the request
+                // Start trapping for exceptions and translate to grpc status codes
+                options.Interceptors.Add<ExceptionInterceptor>();       
+                // Validate the grpc request
+                options.Interceptors.Add<ValidationInterceptor>();      
             })
             .AddServiceOptions<TenantApi>(options => {
-                options.Interceptors.Add<TenantContextInterceptor>();// ge the tenant context
+                // Capture the tenant context from grpc metadata
+                options.Interceptors.Add<TenantContextInterceptor>();   
             });
 
-        // Setup mediatr request pipeline
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));// start logging
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantTransactionBehaviour<,>));// begin a transaction
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantContextBehaviour<,>));// set tenant context in db
+        // Register mediatr request pipeline
+        services
+            // Log the request
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>))
+            // Open a connection, begin a transaction and set the tenant context for the connection
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(TenantConnectionBehaviour<,>)); 
 
-        // infra
+        // Register database connections and repositories
         // Note that there is a single connection per request as this is a scoped dependency
         // This is important as this way the tenant context set by the TenantContextBehaviour
         // is the same one used by the repository
-        services.AddScoped<IConnectionFactory,ConnectionFactory>();
-        services.AddScoped<ICarRepository, CarRepository>();
-        services.AddScoped<IAdminRepository, AdminRepository>();
+        services
+            .AddScoped<IConnectionFactory,ConnectionFactory>()
+            .AddScoped<ICarRepository, CarRepository>()
+            .AddScoped<IAdminRepository, AdminRepository>();
 
-        // Tenant context
+        // Register tenant context
         // a single instance of tenant context is created per request
         // requests for ISet and IGet are both forwarded to the same instance 
-        services.AddScoped<TenantContext>();
-        services.AddScoped<IGetTenantContext>(c => c.GetRequiredService<TenantContext>());
-        services.AddScoped<ISetTenantContext>(c => c.GetRequiredService<TenantContext>());
+        services
+            .AddScoped<TenantContext>()
+            .AddScoped<IGetTenantContext>(c => c.GetRequiredService<TenantContext>())
+            .AddScoped<ISetTenantContext>(c => c.GetRequiredService<TenantContext>());
 
-        // database migrations
+        // Register database migrations and executor
         services
             .AddFluentMigratorCore()
             .ConfigureRunner(runner => runner

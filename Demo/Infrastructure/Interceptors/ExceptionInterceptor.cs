@@ -44,6 +44,11 @@ internal class ExceptionInterceptor : Interceptor
             _log.LogError(ex, "Registration already exists exception detected, returning AlreadyExists");
             throw new RpcException(new Status(StatusCode.AlreadyExists, ex.Message));
         }
+        catch (MissingTenantHeaderException ex)
+        {
+            _log.LogError(ex, "Missing tenant header detected, returning PermissionDenied");
+            throw new RpcException(new Status(StatusCode.PermissionDenied, ex.Message));
+        }
         catch (Exception e)
         {
             _log.LogError(e, "Unknown exception detected, throwing");

@@ -32,11 +32,7 @@
 - Applies to all requests
 
 ### TenantTransactionBehaviour
-- Open a database connection and begin a transaction
-- Only applies when a request is annotated with the `IRequireTenantContext` marker interface
-
-### TenantContextBehaviour
-- Retrieves the tenant identity from the tenant context then uses the open connection to set tenant context in db
+- Open a database connection and begin a transaction then retrieves the tenant identity from the tenant context and sets the tenant context for the connection 
 - Only applies when a request is annotated with the `IRequireTenantContext` marker interface
 
 ## Database schema

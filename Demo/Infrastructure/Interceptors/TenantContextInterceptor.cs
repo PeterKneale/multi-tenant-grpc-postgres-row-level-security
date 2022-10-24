@@ -8,6 +8,7 @@ internal class TenantContextInterceptor : Interceptor
 {
     private readonly ISetTenantContext _context;
     private readonly ILogger<TenantContextInterceptor> _log;
+    private const string TenantMetaDataKey = "tenant";
 
     public TenantContextInterceptor(ISetTenantContext context, ILogger<TenantContextInterceptor> log)
     {
@@ -19,11 +20,11 @@ internal class TenantContextInterceptor : Interceptor
     {
         _log.LogInformation("Getting tenant context from grpc headers");
 
-        var header = context.RequestHeaders.SingleOrDefault(x => x.Key == "tenant");
+        var header = context.RequestHeaders.SingleOrDefault(x => x.Key == TenantMetaDataKey);
         if (header == null)
         {
             _log.LogError("No header found");
-            throw new Exception("No header found");
+            throw new MissingTenantHeaderException();
         }
 
         _log.LogInformation("Found tenant header {Tenant}", header.Value);
