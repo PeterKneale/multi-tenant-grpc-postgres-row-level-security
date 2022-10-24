@@ -1,49 +1,43 @@
 # Demo of a multi-tenant application using Grpc, Dapper and Postgres with Row level security 
 - Featuring both tenant and admin access
 
-## Apis
+## API
 
-### Admin Api
+### Admin API
 
 Executes use cases in the context of an administrator on the platform
 
-### Tenant Api
+### Tenant API
 
 Executes use cases in the context of a specific tenant on the platform
 
 ## GRPC Request Pipeline
 
 ### ExceptionInterceptor
-
-Trap for exceptions and translate them to GRPC response status codes
-Applied to both the Admin and Tenant APIs
+- Trap for exceptions and translate them to GRPC response status codes
+- Applied to both the `Admin API` and `Tenant API`
 
 ### ValidationInterceptor
-
-Finds a validator for the GRPC request and uses it to validate the request or throw a validation exception
-Applied to both the Admin and Tenant APIs
+- Finds a validator for the GRPC request and uses it to validate the request or throw a validation exception
+- Applied to both the `Admin API` and `Tenant API`
 
 ### TenantContextInterceptor
-
-Extracts the tenant identifier from the GRPC request and stores it in the tenant context.
-Only applied to the Tenant API
+- Extracts the tenant identifier from the GRPC request and stores it in the tenant context.
+- Only applied to the `Tenant API`
 
 ## Mediatr Request Pipeline
 
 ### LoggingBehaviour
-
-Log the request being executed
-Applies to all requests
+- Log the request being executed
+- Applies to all requests
 
 ### TenantTransactionBehaviour
-
-Open a database connection and begin a transaction
-Only applies when a request is annotated with the `IRequireTenantContext` marker interface
+- Open a database connection and begin a transaction
+- Only applies when a request is annotated with the `IRequireTenantContext` marker interface
 
 ### TenantContextBehaviour
-
-Retrieves the tenant identity from the tenant context then uses the open connection to set tenant context in db
-Only applies when a request is annotated with the `IRequireTenantContext` marker interface
+- Retrieves the tenant identity from the tenant context then uses the open connection to set tenant context in db
+- Only applies when a request is annotated with the `IRequireTenantContext` marker interface
 
 ## Database schema
 Create a table for use by multiple tenants
