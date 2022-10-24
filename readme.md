@@ -4,12 +4,12 @@
 ## API
 
 ### Admin API
-
-Executes use cases in the context of an administrator on the platform
+- Executes use cases in the context of an administrator on the platform
+- The security policy defined below allows read-only acccess to all tenant data
 
 ### Tenant API
-
-Executes use cases in the context of a specific tenant on the platform
+- Executes use cases in the context of a specific tenant on the platform
+- The security policy defined below allows full acccess to the specified tenants data
 
 ## GRPC Request Pipeline
 
